@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.library.controllers.AdminController" prefHeight="720.0" prefWidth="1280.0" stylesheets="@/org/example/library/styles.css">
+    <children>
+        <ImageView fitHeight="1080.0" fitWidth="1920.0" preserveRatio="false" smooth="true" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0">
+            <image>
+                <Image url="/org/example/library/vektorbg.png"/>
+            </image>
+        </ImageView>
+        <HBox spacing="20" style="-fx-padding: 20;" AnchorPane.topAnchor="80.0" AnchorPane.leftAnchor="80.0">
+            <children>
+                <Label text="Good Morning, Admin" style="-fx-font-size: 32px; -fx-text-fill: #990000; -fx-font-weight: bold;" />
+            </children>
+        </HBox>
+        <HBox alignment="TOP_RIGHT" spacing="10" AnchorPane.topAnchor="100.0" AnchorPane.rightAnchor="80.0">
+            <VBox>
+                <Button fx:id="adminButton" text="Admin" styleClass="admin-button" onAction="#handleAdminMenu"/>
+                <VBox fx:id="adminMenu" visible="false">
+                    <Button fx:id="logoutButton" text="Logout" onAction="#handleLogout" styleClass="logout-button"/>
+                </VBox>
+            </VBox>
+        </HBox>
+        <VBox alignment="CENTER" spacing="108" AnchorPane.topAnchor="300.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0">
+            <children>
+                <HBox spacing="224" alignment="CENTER">
+                    <StackPane styleClass="feature-box" onMouseClicked="#handleTambahBuku">
+                        <VBox alignment="CENTER" spacing="20">
+                            <ImageView fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@/org/example/library/tambah_buku_icon.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Tambah Buku" styleClass="feature-label"/>
+                        </VBox>
+                    </StackPane>
+                    <StackPane styleClass="feature-box" onMouseClicked="#handleEditBuku">
+                        <VBox alignment="CENTER" spacing="20">
+                            <ImageView fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@/org/example/library/edit_buku_icon.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Edit Buku" styleClass="feature-label"/>
+                        </VBox>
+                    </StackPane>
+                    <StackPane styleClass="feature-box" onMouseClicked="#handleHapusBuku">
+                        <VBox alignment="CENTER" spacing="20">
+                            <ImageView fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@/org/example/library/hapus_buku_icon.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Hapus Buku" styleClass="feature-label"/>
+                        </VBox>
+                    </StackPane>
+                </HBox>
+                <HBox spacing="224" alignment="CENTER">
+                    <StackPane styleClass="feature-box" onMouseClicked="#handleDisplayBuku">
+                        <VBox alignment="CENTER" spacing="20">
+                            <ImageView fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@/org/example/library/display_buku_icon.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Display Buku" styleClass="feature-label"/>
+                        </VBox>
+                    </StackPane>
+                    <StackPane styleClass="feature-box" onMouseClicked="#handleTambahMahasiswa">
+                        <VBox alignment="CENTER" spacing="20">
+                            <ImageView fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@/org/example/library/tambah_mahasiswa_icon.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Tambah Mahasiswa" styleClass="feature-label"/>
+                        </VBox>
+                    </StackPane>
+                    <StackPane styleClass="feature-box" onMouseClicked="#handleDisplayMahasiswa">
+                        <VBox alignment="CENTER" spacing="20">
+                            <ImageView fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@/org/example/library/display_mahasiswa_icon.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Display Mahasiswa" styleClass="feature-label"/>
+                        </VBox>
+                    </StackPane>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

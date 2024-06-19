@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.library.controllers.LoginController" prefHeight="720.0" prefWidth="1280.0" stylesheets="@/org/example/library/styles.css">
+    <children>
+        <ImageView fitHeight="877.0" fitWidth="2053.0" layoutX="-35.75" layoutY="0.75" pickOnBounds="true" preserveRatio="false">
+            <image>
+                <Image url="@/org/example/library/Vector 2.png" />
+            </image>
+        </ImageView>
+        <VBox alignment="CENTER" spacing="20" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 0);"
+              AnchorPane.leftAnchor="750.0" AnchorPane.rightAnchor="750.0" AnchorPane.topAnchor="310.0" AnchorPane.bottomAnchor="310.0">
+            <children>
+                <Label text="myUMM Library" style="-fx-font-size: 32px; -fx-text-fill: #990000; -fx-font-weight: bold;" />
+                <Label text="Welcome Back !" style="-fx-font-size: 20px; -fx-text-fill: #990000;" />
+                <Label text="Sign in to continue to myUMM Library" style="-fx-font-size: 16px; -fx-text-fill: #888888;" />
+
+                <VBox spacing="10" alignment="CENTER">
+                    <VBox alignment="CENTER_LEFT" spacing="5" style="-fx-pref-width: 300px;">
+                        <Label text="Username" style="-fx-font-size: 14px; -fx-text-fill: #555555; -fx-translate-x: 40;" />
+                        <StackPane alignment="CENTER">
+                            <TextField fx:id="usernameField" promptText="Username or NIM" styleClass="text-field" style="-fx-pref-width: 300px;" />
+                        </StackPane>
+                    </VBox>
+                </VBox>
+
+                <VBox spacing="10" alignment="CENTER">
+                    <VBox alignment="CENTER_LEFT" spacing="5" style="-fx-pref-width: 300px;">
+                        <Label text="Password" style="-fx-font-size: 14px; -fx-text-fill: #555555; -fx-translate-x: 40;" />
+                        <StackPane alignment="CENTER">
+                            <PasswordField fx:id="passwordField" promptText="Password or PIC" styleClass="password-field" style="-fx-pref-width: 300px;" />
+                            <TextField fx:id="passwordTextField" promptText="Password or PIC" styleClass="password-field" visible="false" managed="false" style="-fx-pref-width: 300px;" />
+                            <ImageView fx:id="togglePasswordVisibility" styleClass="eye-button" fitHeight="20" fitWidth="20" preserveRatio="true" style="-fx-translate-x: 120;" />
+                        </StackPane>
+                    </VBox>
+                </VBox>
+
+                <Button fx:id="loginButton" text="Login" onAction="#handleLogin" styleClass="button" />
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

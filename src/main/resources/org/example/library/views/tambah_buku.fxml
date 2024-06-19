@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.library.controllers.TambahBukuController" prefHeight="720.0" prefWidth="1280.0" stylesheets="@/org/example/library/styles.css">
+    <children>
+        <ImageView fitHeight="1080.0" fitWidth="1920.0" preserveRatio="false" smooth="true" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0">
+            <image>
+                <Image url="@/org/example/library/vektorbg.png"/>
+            </image>
+        </ImageView>
+        <HBox spacing="10" alignment="CENTER_LEFT" AnchorPane.topAnchor="90.0" AnchorPane.leftAnchor="90.0">
+            <children>
+                <ImageView fx:id="backArrow" styleClass="back-arrow" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" onMouseClicked="#handleBackToAdmin">
+                    <image>
+                        <Image url="@/org/example/library/back_arrow.png" />
+                    </image>
+                </ImageView>
+                <Label text="Tambahkan Buku" styleClass="heading"/>
+            </children>
+        </HBox>
+        <VBox spacing="20" alignment="CENTER" AnchorPane.topAnchor="220.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+            <children>
+                <VBox spacing="10" alignment="CENTER">
+                    <HBox spacing="10" alignment="CENTER" style="-fx-translate-x: -17px;">
+                        <VBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="ID Buku" styleClass="label-left"/>
+                            <TextField fx:id="idBukuField" styleClass="text-field-half"/>
+                            <Label text="Judul Buku" styleClass="label-left"/>
+                            <TextField fx:id="judulBukuField" styleClass="text-field-half"/>
+                            <Label text="Penulis Buku" styleClass="label-left"/>
+                            <TextField fx:id="penulisBukuField" styleClass="text-field-half"/>
+                        </VBox>
+                        <VBox spacing="10" alignment="CENTER" style="-fx-translate-x: 32;">
+                            <Label text="Foto Buku" styleClass="label"/>
+                            <StackPane alignment="CENTER" styleClass="image-upload-box" onMouseClicked="#handleUploadImage">
+                                <ImageView fx:id="fotoBukuView" fitHeight="200.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true"/>
+                            </StackPane>
+                        </VBox>
+                    </HBox>
+                    <VBox spacing="10" alignment="CENTER">
+                        <Label text="Kategori Buku" styleClass="label-left-wide"/>
+                        <TextField fx:id="kategoriBukuField" styleClass="text-field-wide"/>
+                        <Label text="Stok Buku" styleClass="label-left-wide"/>
+                        <TextField fx:id="stokBukuField" styleClass="text-field-wide"/>
+                        <Label text="Tahun Terbit" styleClass="label-left-wide"/>
+                        <TextField fx:id="tahunTerbitField" styleClass="text-field-wide"/>
+                    </VBox>
+                </VBox>
+                <Button text="Tambahkan Buku" onAction="#handleTambahBuku" styleClass="button-wide"/>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

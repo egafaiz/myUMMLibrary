@@ -107,6 +107,20 @@ public class LoginController {
         }
     }
 
+    private void loadScene(String fxml) {
+        Stage stage = (Stage) loginButton.getScene().getWindow();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/" + fxml));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
+            stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load the scene.");
+        }
+    }
+
     private void loadStudentScene(Mahasiswa mahasiswa) {
         Stage stage = (Stage) loginButton.getScene().getWindow();
         try {

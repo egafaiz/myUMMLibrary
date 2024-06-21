@@ -20,8 +20,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.geometry.Pos;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +32,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-public class EditBukuController {
+public class HapusBukuController {
     @FXML private ComboBox<String> kategoriComboBox;
     @FXML private TextField searchField;
     @FXML private VBox bukuListContainer;
-    @FXML private StackPane editDialogPane;
+    @FXML private StackPane deleteDialogPane;
 
     private final String DATA_FILE = "src/main/resources/org/example/library/books.json";
     private final String CATEGORY_FILE = "src/main/resources/org/example/library/categories.json";
@@ -88,40 +90,37 @@ public class EditBukuController {
     }
 
     @FXML
-    private void handleEditBook(MouseEvent event) {
+    private void handleDeleteBook(MouseEvent event) {
+        deleteDialogPane.setVisible(true);
         selectedBook = (Book) ((VBox) event.getSource()).getUserData();
-        editDialogPane.setVisible(true);
     }
 
     @FXML
-    private void handleEdit(ActionEvent event) {
-        // Load update_buku.fxml scene and pass the selected book data
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/update_buku.fxml"));
-            Parent root = loader.load();
-
-            // Get the controller and pass the selected book data
-            UpdateBukuController controller = loader.getController();
-            controller.setBookData(selectedBook.getId(), selectedBook.getJudul(), selectedBook.getPenulis(),
-                    selectedBook.getKategori(), selectedBook.getStok(), selectedBook.getTahun(), selectedBook.getFoto());
-
-            Stage stage = (Stage) searchField.getScene().getWindow();
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
-            stage.setScene(scene);
-        } catch (IOException e) {
-            showError("Error loading scene", "Terjadi kesalahan saat memuat scene.");
-            e.printStackTrace();
+    private void handleDelete(ActionEvent event) {
+        if (selectedBook != null) {
+            deleteBookFromJson(selectedBook);
+            showSuccessMessage("Buku berhasil dihapus!");
+            loadAllBooks(); // Refresh the book list after deletion
         }
+        deleteDialogPane.setVisible(false);
     }
 
     @FXML
     private void handleCancel(ActionEvent event) {
-        editDialogPane.setVisible(false);
+        deleteDialogPane.setVisible(false);
     }
 
-    private void showEditPage() {
-        // Logika untuk menampilkan halaman edit buku atau mengisi data buku yang akan diedit
+    private void deleteBookFromJson(Book book) {
+        List<Book> books = loadBooksFromJson();
+        books.removeIf(b -> b.getId() == book.getId());
+
+        try (FileWriter writer = new FileWriter(DATA_FILE)) {
+            Gson gson = new Gson();
+            gson.toJson(books, writer);
+        } catch (IOException e) {
+            showError("Error", "Terjadi kesalahan saat menyimpan data.");
+            e.printStackTrace();
+        }
     }
 
     private void loadCategories() {
@@ -193,10 +192,18 @@ public class EditBukuController {
         alert.showAndWait();
     }
 
+    private void showSuccessMessage(String message) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Sukses");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     private VBox createBookView(Book book) {
         VBox bookBox = new VBox();
         bookBox.setSpacing(10);
-        bookBox.setOnMouseClicked(this::handleEditBook);
+        bookBox.setOnMouseClicked(this::handleDeleteBook);
         bookBox.setUserData(book);
         bookBox.getStyleClass().add("book-box");
 

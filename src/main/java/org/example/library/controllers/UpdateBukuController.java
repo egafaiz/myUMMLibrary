@@ -25,7 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 
-public class TambahBukuController {
+public class UpdateBukuController {
     @FXML private TextField idBukuField;
     @FXML private TextField judulBukuField;
     @FXML private TextField penulisBukuField;
@@ -45,14 +45,11 @@ public class TambahBukuController {
     }
 
     @FXML
-    private void handleTambahBuku(ActionEvent event) {
-        // Validasi input
+    private void handleUpdateBuku(ActionEvent event) {
         if (isInputValid()) {
-            // Simpan data ke berkas JSON
             try {
-                saveBookToJson();
-                saveCategoryToJson(kategoriBukuField.getText());
-                showSuccessMessage("Buku berhasil ditambahkan!");
+                updateBookInJson();
+                showSuccessMessage("Buku berhasil diupdate!");
             } catch (Exception e) {
                 showErrorMessage(e.getMessage());
             }
@@ -126,7 +123,7 @@ public class TambahBukuController {
             }
         }
 
-        if (selectedImageFile == null) {
+        if (selectedImageFile == null && fotoBukuView.getImage() == null) {
             errorMessage += "Foto Buku tidak boleh kosong!\n";
         }
 
@@ -138,59 +135,47 @@ public class TambahBukuController {
         }
     }
 
-    private void saveBookToJson() throws Exception {
+    private void updateBookInJson() throws Exception {
         List<Book> books = loadBooksFromJson();
-        int newBookId = Integer.parseInt(idBukuField.getText());
+        int bookId = Integer.parseInt(idBukuField.getText());
 
+        Book existingBook = null;
         for (Book book : books) {
-            if (book.getId() == newBookId) {
-                throw new Exception("ID Buku sudah ada!");
+            if (book.getId() == bookId) {
+                existingBook = book;
+                break;
             }
         }
 
-        Book newBook = new Book();
-        newBook.setId(newBookId);
-        newBook.setJudul(judulBukuField.getText());
-        newBook.setPenulis(penulisBukuField.getText());
-        newBook.setKategori(kategoriBukuField.getText());
-        newBook.setStok(Integer.parseInt(stokBukuField.getText()));
-        newBook.setTahun(Integer.parseInt(tahunTerbitField.getText()));
-
-        // Simpan gambar ke direktori
-        File imageDir = new File(IMAGE_DIR);
-        if (!imageDir.exists()) {
-            imageDir.mkdirs();
-        }
-        File destFile = new File(IMAGE_DIR + selectedImageFile.getName());
-        try {
-            Files.copy(selectedImageFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            newBook.setFoto(destFile.getPath());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (existingBook == null) {
+            throw new Exception("ID Buku tidak ditemukan!");
         }
 
-        books.add(newBook);
+        existingBook.setJudul(judulBukuField.getText());
+        existingBook.setPenulis(penulisBukuField.getText());
+        existingBook.setKategori(kategoriBukuField.getText());
+        existingBook.setStok(Integer.parseInt(stokBukuField.getText()));
+        existingBook.setTahun(Integer.parseInt(tahunTerbitField.getText()));
+
+        if (selectedImageFile != null) {
+            File imageDir = new File(IMAGE_DIR);
+            if (!imageDir.exists()) {
+                imageDir.mkdirs();
+            }
+            File destFile = new File(IMAGE_DIR + selectedImageFile.getName());
+            try {
+                Files.copy(selectedImageFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                existingBook.setFoto(destFile.getPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         try (FileWriter writer = new FileWriter(DATA_FILE)) {
             Gson gson = new Gson();
             gson.toJson(books, writer);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void saveCategoryToJson(String kategori) {
-        List<String> categories = loadCategoriesFromJson();
-
-        if (!categories.contains(kategori)) {
-            categories.add(kategori);
-
-            try (FileWriter writer = new FileWriter(CATEGORY_FILE)) {
-                Gson gson = new Gson();
-                gson.toJson(categories, writer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -211,21 +196,17 @@ public class TambahBukuController {
         return new ArrayList<>();
     }
 
-    private List<String> loadCategoriesFromJson() {
-        File dataFile = new File(CATEGORY_FILE);
-        if (!dataFile.exists()) {
-            return new ArrayList<>();
+    public void setBookData(int id, String judul, String penulis, String kategori, int stok, int tahun, String foto) {
+        idBukuField.setText(String.valueOf(id));
+        judulBukuField.setText(judul);
+        penulisBukuField.setText(penulis);
+        kategoriBukuField.setText(kategori);
+        stokBukuField.setText(String.valueOf(stok));
+        tahunTerbitField.setText(String.valueOf(tahun));
+        if (foto != null) {
+            Image image = new Image(new File(foto).toURI().toString());
+            fotoBukuView.setImage(image);
         }
-
-        try {
-            String content = new String(Files.readAllBytes(dataFile.toPath()));
-            Gson gson = new Gson();
-            Type categoryListType = new TypeToken<ArrayList<String>>(){}.getType();
-            return gson.fromJson(content, categoryListType);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
     }
 
     private void loadScene(String fxml) {
@@ -247,7 +228,7 @@ public class TambahBukuController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-        handleBackToAdmin(null); // Kembali ke halaman admin setelah menampilkan pesan sukses
+        handleBackToAdmin(null);
     }
 
     private void showErrorMessage(String message) {

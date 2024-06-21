@@ -6,7 +6,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -15,7 +14,6 @@ import javafx.scene.Scene;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.image.Image;
 import javafx.scene.control.Label;
-import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.geometry.Pos;
 
@@ -30,15 +28,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-public class EditBukuController {
+public class DisplayBukuController {
     @FXML private ComboBox<String> kategoriComboBox;
     @FXML private TextField searchField;
     @FXML private VBox bukuListContainer;
-    @FXML private StackPane editDialogPane;
 
     private final String DATA_FILE = "src/main/resources/org/example/library/books.json";
     private final String CATEGORY_FILE = "src/main/resources/org/example/library/categories.json";
-    private Book selectedBook;
 
     @FXML
     private void initialize() {
@@ -76,7 +72,7 @@ public class EditBukuController {
     }
 
     @FXML
-    private void handleCategorySearch(ActionEvent event) {
+    private void handleCategorySearch(javafx.event.ActionEvent event) {
         String selectedCategory = kategoriComboBox.getValue();
         List<Book> books = loadBooksFromJson();
         bukuListContainer.getChildren().clear();
@@ -85,43 +81,6 @@ public class EditBukuController {
                 addBookToView(book);
             }
         }
-    }
-
-    @FXML
-    private void handleEditBook(MouseEvent event) {
-        selectedBook = (Book) ((VBox) event.getSource()).getUserData();
-        editDialogPane.setVisible(true);
-    }
-
-    @FXML
-    private void handleEdit(ActionEvent event) {
-        // Load update_buku.fxml scene and pass the selected book data
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/update_buku.fxml"));
-            Parent root = loader.load();
-
-            // Get the controller and pass the selected book data
-            UpdateBukuController controller = loader.getController();
-            controller.setBookData(selectedBook.getId(), selectedBook.getJudul(), selectedBook.getPenulis(),
-                    selectedBook.getKategori(), selectedBook.getStok(), selectedBook.getTahun(), selectedBook.getFoto());
-
-            Stage stage = (Stage) searchField.getScene().getWindow();
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
-            stage.setScene(scene);
-        } catch (IOException e) {
-            showError("Error loading scene", "Terjadi kesalahan saat memuat scene.");
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleCancel(ActionEvent event) {
-        editDialogPane.setVisible(false);
-    }
-
-    private void showEditPage() {
-        // Logika untuk menampilkan halaman edit buku atau mengisi data buku yang akan diedit
     }
 
     private void loadCategories() {
@@ -196,8 +155,6 @@ public class EditBukuController {
     private VBox createBookView(Book book) {
         VBox bookBox = new VBox();
         bookBox.setSpacing(10);
-        bookBox.setOnMouseClicked(this::handleEditBook);
-        bookBox.setUserData(book);
         bookBox.getStyleClass().add("book-box");
 
         ImageView bookImage = new ImageView(new Image(new File(book.getFoto()).toURI().toString()));

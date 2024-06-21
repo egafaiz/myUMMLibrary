@@ -15,8 +15,15 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class LoginController {
     @FXML private TextField usernameField;
@@ -26,14 +33,13 @@ public class LoginController {
     @FXML private ImageView togglePasswordVisibility;
 
     private boolean isPasswordVisible = false;
-    private Map<String, String> studentData;
+    private Map<String, Mahasiswa> studentData;
+
+    private final String DATA_FILE = "src/main/resources/org/example/library/mahasiswa.json";
 
     @FXML
     private void initialize() {
-        // Example student data
-        studentData = new HashMap<>();
-        studentData.put("student1", "studentPassword1");
-        studentData.put("student2", "studentPassword2");
+        loadStudentData();
 
         // Prepare text field to display password as plain text
         passwordTextField.setManaged(false);
@@ -45,6 +51,22 @@ public class LoginController {
         updateTogglePasswordVisibilityIcon();
 
         togglePasswordVisibility.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> togglePasswordVisibility());
+    }
+
+    private void loadStudentData() {
+        studentData = new HashMap<>();
+        try {
+            String content = new String(Files.readAllBytes(Paths.get(DATA_FILE)));
+            Gson gson = new Gson();
+            Type listType = new TypeToken<List<Mahasiswa>>() {}.getType();
+            List<Mahasiswa> mahasiswaList = gson.fromJson(content, listType);
+            for (Mahasiswa mhs : mahasiswaList) {
+                studentData.put(mhs.getNim(), mhs);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load student data.");
+        }
     }
 
     private void togglePasswordVisibility() {
@@ -75,24 +97,43 @@ public class LoginController {
         // Implement login logic
         if ("admin".equals(username) && "admin".equals(password)) {
             loadScene("admin.fxml");
-        } else if (studentData.containsKey(username) && studentData.get(username).equals(password)) {
-            loadScene("student.fxml");
+        } else if (studentData.containsKey(username) && studentData.get(username).getPic().equals(password)) {
+            Mahasiswa mahasiswa = studentData.get(username);
+            mahasiswa.incrementLogins();
+            saveStudentData();
+            loadStudentScene(mahasiswa);
         } else {
-            showAlert("Login Failed", "Invalid username or password.");
+            showAlert("Login Failed", "Invalid NIM or PIC.");
         }
     }
 
-    private void loadScene(String fxml) {
+    private void loadStudentScene(Mahasiswa mahasiswa) {
         Stage stage = (Stage) loginButton.getScene().getWindow();
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/" + fxml));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/student.fxml"));
             Parent root = loader.load();
+
+            // Pass Mahasiswa object to the controller
+            StudentController controller = loader.getController();
+            controller.setMahasiswa(mahasiswa);
+
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
             stage.setScene(scene);
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to load the scene.");
+        }
+    }
+
+    private void saveStudentData() {
+        try {
+            Gson gson = new Gson();
+            String json = gson.toJson(studentData.values());
+            Files.write(Paths.get(DATA_FILE), json.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to save student data.");
         }
     }
 
@@ -112,5 +153,33 @@ public class LoginController {
         passwordField.setVisible(true);
         isPasswordVisible = false;
         updateTogglePasswordVisibilityIcon();
+    }
+
+    // Kelas untuk mahasiswa
+    public class Mahasiswa {
+        private String nim;
+        private String pic;
+        private int loginCount;
+        private List<String> borrowedBooks;
+        private List<String> returnedBooks;
+
+        public Mahasiswa() {
+            this.loginCount = 0;
+        }
+
+        public String getNim() { return nim; }
+        public void setNim(String nim) { this.nim = nim; }
+        public String getPic() { return pic; }
+        public void setPic(String pic) { this.pic = pic; }
+        public int getLoginCount() { return loginCount; }
+        public void setLoginCount(int loginCount) { this.loginCount = loginCount; }
+        public List<String> getBorrowedBooks() { return borrowedBooks; }
+        public void setBorrowedBooks(List<String> borrowedBooks) { this.borrowedBooks = borrowedBooks; }
+        public List<String> getReturnedBooks() { return returnedBooks; }
+        public void setReturnedBooks(List<String> returnedBooks) { this.returnedBooks = returnedBooks; }
+
+        public void incrementLogins() {
+            this.loginCount++;
+        }
     }
 }

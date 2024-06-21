@@ -9,7 +9,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.library.controllers.TambahBukuController" prefHeight="720.0" prefWidth="1280.0" stylesheets="@/org/example/library/styles.css">
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.library.controllers.UpdateBukuController" prefHeight="720.0" prefWidth="1280.0" stylesheets="@/org/example/library/styles.css">
     <children>
         <ImageView fitHeight="1080.0" fitWidth="1920.0" preserveRatio="false" smooth="true" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0">
             <image>
@@ -23,7 +24,7 @@
                         <Image url="@/org/example/library/back_arrow.png" />
                     </image>
                 </ImageView>
-                <Label text="Tambahkan Buku" styleClass="heading"/>
+                <Label text="Update Buku" styleClass="heading"/>
             </children>
         </HBox>
         <VBox spacing="20" alignment="CENTER" AnchorPane.topAnchor="220.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
@@ -32,7 +33,7 @@
                     <HBox spacing="10" alignment="CENTER">
                         <VBox spacing="10" alignment="CENTER_LEFT" style="-fx-translate-x: -19;">
                             <Label text="ID Buku" styleClass="label-left"/>
-                            <TextField fx:id="idBukuField" styleClass="text-field-half"/>
+                            <TextField fx:id="idBukuField" styleClass="text-field-half" editable="false"/>
                             <Label text="Judul Buku" styleClass="label-left"/>
                             <TextField fx:id="judulBukuField" styleClass="text-field-half"/>
                             <Label text="Penulis Buku" styleClass="label-left"/>
@@ -54,7 +55,7 @@
                         <TextField fx:id="tahunTerbitField" styleClass="text-field-wide"/>
                     </VBox>
                 </VBox>
-                <Button text="Tambahkan Buku" onAction="#handleTambahBuku" styleClass="button-wide"/>
+                <Button text="Update Buku" onAction="#handleUpdateBuku" styleClass="button-wide"/>
             </children>
         </VBox>
     </children>

@@ -47,7 +47,7 @@
                                     <children>
                                         <ImageView fx:id="searchIcon" fitHeight="20.0" fitWidth="20.0">
                                             <image>
-                                                <Image url="@/org/example/library/search.png"/>
+                                                <Image url="@/org/example/library/Search.png"/>
                                             </image>
                                         </ImageView>
                                         <Label text="Search" styleClass="sidebar-text"/>

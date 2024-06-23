@@ -376,9 +376,6 @@
     -fx-image: url("@/org/example/library/home_active.png");
 }
 
-.sidebar-button-active .sidebar-text {
-    -fx-text-fill: #990000;
-}
 
 .search-bar-button {
     -fx-background-color: transparent;
@@ -444,3 +441,4 @@
     -fx-text-fill: #FB6340;
     -fx-font-weight: regular;
 }
+

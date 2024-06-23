@@ -6,7 +6,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -14,11 +13,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.fxml.FXMLLoader;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -29,25 +27,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentController {
-    @FXML private Label nimLabel;
-    @FXML private Label loginCountLabel;
-    @FXML private Label totalKunjunganLabel;
-    @FXML private Label bukuTerpinjamLabel;
-    @FXML private Label terlambatLabel;
+public class CariBukuController {
     @FXML private ComboBox<String> kategoriComboBox;
     @FXML private TextField searchField;
-    @FXML private ImageView profileImage;
-    @FXML private VBox profileMenu;
     @FXML private HBox bukuListContainer;
-    @FXML private Button profileButton;
-    @FXML private ScrollPane bukuListScrollPane;
     @FXML private Button homeButton;
     @FXML private Button searchButton;
     @FXML private Button myShelfButton;
-
-    private LoginController.Mahasiswa mahasiswa;
-    private int loginCount;
+    @FXML private VBox profileMenu;
 
     @FXML
     private void initialize() {
@@ -55,32 +42,7 @@ public class StudentController {
         loadAllBooks(); // Load all books initially
         kategoriComboBox.setValue("All"); // Set default value for category
         kategoriComboBox.setOnAction(this::handleCategorySearch);
-        setActiveButton(homeButton); // Set Home button as active initially
-    }
-
-    public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
-        this.mahasiswa = mahasiswa;
-        updateUI();
-    }
-
-    public void setLoginCount(int loginCount) {
-        this.loginCount = loginCount;
-        updateUI();
-    }
-
-    private void updateUI() {
-        totalKunjunganLabel.setText(String.valueOf(loginCount));
-        bukuTerpinjamLabel.setText(String.valueOf(
-                mahasiswa.getBorrowedBooks() != null ? mahasiswa.getBorrowedBooks().size() : 0));
-        terlambatLabel.setText(String.valueOf(countLateBooks(mahasiswa.getBorrowedBooks())));
-    }
-
-    private int countLateBooks(List<String> borrowedBooks) {
-        if (borrowedBooks == null) {
-            return 0;
-        }
-        // Implement the logic to count late books
-        return 0;
+        setActiveButton(searchButton); // Set Search button as active initially
     }
 
     @FXML
@@ -91,13 +53,13 @@ public class StudentController {
     @FXML
     private void handleHomeClick() {
         setActiveButton(homeButton);
-        // Handle Home button click
+        loadScene("student.fxml");
     }
 
     @FXML
     private void handleSearchClick() {
         setActiveButton(searchButton);
-        loadScene("cari_buku.fxml");
+        // Handle Search button click
     }
 
     @FXML
@@ -215,10 +177,9 @@ public class StudentController {
     }
 
     private void loadScene(String fxml) {
-        Stage stage = (Stage) totalKunjunganLabel.getScene().getWindow();
+        Stage stage = (Stage) searchField.getScene().getWindow();
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/" + fxml));
-            Parent root = loader.load();
+            Parent root = FXMLLoader.load(getClass().getResource("/org/example/library/views/" + fxml));
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
             stage.setScene(scene);

@@ -16,6 +16,24 @@
     -fx-pref-width: 550px; /* Keep width fixed */
 }
 
+.text-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(153, 0, 0, 0.6);
+    -fx-font-size: 15px;
+    -fx-padding: 12px;
+    -fx-cursor: hand;
+    -fx-pref-width: 120px;
+}
+
+.text-button:hover {
+    -fx-pref-width: 120px;
+    -fx-background-color: transparent;
+    -fx-text-fill: #990000;
+    -fx-font-size: 15px;
+    -fx-padding: 12px;
+    -fx-cursor: hand;
+}
+
 .text-field, .password-field {
     -fx-background-color: #F1F1F1;
     -fx-text-fill: #000000;
@@ -128,9 +146,9 @@
 }
 
 .heading {
-    -fx-font-size: 32px;
+    -fx-font-size: 35px;
     -fx-text-fill: #990000;
-    -fx-font-weight: bold;
+    -fx-font-weight: semi bold;
 }
 
 .image-upload-box {
@@ -297,7 +315,7 @@
     -fx-preserve-ratio: true;
 }
 
-.mahasiswa-title, .mahasiswa-author, .mahasiswa-stock {
+.mahasiswa-nama, .mahasiswa-nim, .mahasiswa-fakultas, .mahasiswa-prodi, .mahasiswa-pic {
     -fx-font-size: 14px;
     -fx-text-fill: #555555;
 }
@@ -317,4 +335,112 @@
 .mahasiswa-list {
     -fx-spacing: 20px;
     -fx-alignment: CENTER;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8A8A8A;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 10px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar-button:hover .sidebar-icon,
+.sidebar-button:hover .sidebar-text {
+    -fx-text-fill: #990000;
+}
+
+.sidebar-button-active .sidebar-icon,
+.sidebar-button-active .sidebar-text {
+    -fx-text-fill: #990000;
+}
+
+.sidebar-icon {
+    -fx-text-fill: #8A8A8A;
+}
+
+.sidebar-text {
+    -fx-text-fill: #8A8A8A;
+}
+
+.sidebar-button:hover .sidebar-icon {
+    -fx-image: url("@/org/example/library/home_hover.png");
+}
+
+.sidebar-button:hover .sidebar-text {
+    -fx-text-fill: #990000;
+}
+
+.sidebar-button-active .sidebar-icon {
+    -fx-image: url("@/org/example/library/home_active.png");
+}
+
+.sidebar-button-active .sidebar-text {
+    -fx-text-fill: #990000;
+}
+
+.search-bar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #990000;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 0 5px; /* Reduce padding */
+}
+
+.info-box {
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 20px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 0);
+    -fx-pref-width: 250px; /* Set a fixed width for uniformity */
+    -fx-pref-height: 150px; /* Set a fixed height for uniformity */
+    -fx-margin: 0 40px; /* Increase margin between info boxes */
+}
+
+.info-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #555555;
+    -fx-font-weight: bold;
+}
+
+.info-value {
+    -fx-font-size: 24px;
+    -fx-text-fill: #990000;
+    -fx-font-weight: bold;
+}
+
+.profile-menu-button {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #990000;
+    -fx-font-size: 16px;
+    -fx-padding: 5px 15px; /* Adjust padding to prevent text cutoff */
+    -fx-background-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 0);
+    -fx-min-width: 100px;
+    -fx-max-width: 100px;
+    -fx-pref-width: 100px;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-pref-height: 30px;
+}
+
+.logout-button-small {
+    -fx-background-color: #990000;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 5px 15px; /* Adjust padding to prevent text cutoff */
+    -fx-background-radius: 25px;
+    -fx-min-width: 100px;
+    -fx-max-width: 100px;
+    -fx-pref-width: 100px;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-pref-height: 30px;
+}
+
+.subheading {
+    -fx-font-size: 25px;
+    -fx-text-fill: #FB6340;
+    -fx-font-weight: regular;
 }

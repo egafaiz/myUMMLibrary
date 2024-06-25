@@ -1,24 +1,20 @@
 package org.example.library.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import org.example.library.Book;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +31,10 @@ public class CariBukuController {
     @FXML private Button searchButton;
     @FXML private Button myShelfButton;
     @FXML private VBox profileMenu;
+    @FXML private Label loginCountLabel; // Add this to display login count
+
+    private LoginController.Mahasiswa mahasiswa;
+    private int loginCount;
 
     @FXML
     private void initialize() {
@@ -45,6 +45,22 @@ public class CariBukuController {
         setActiveButton(searchButton); // Set Search button as active initially
     }
 
+    public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
+        this.mahasiswa = mahasiswa;
+        updateUI(); // Update UI after setting mahasiswa
+    }
+
+    public void setLoginCount(int loginCount) {
+        this.loginCount = loginCount;
+        updateUI(); // Update UI after setting loginCount
+    }
+
+    private void updateUI() {
+        if (loginCountLabel != null) {
+            loginCountLabel.setText(String.valueOf(loginCount));
+        }
+    }
+
     @FXML
     private void handleLogout() {
         loadScene("login.fxml");
@@ -53,7 +69,7 @@ public class CariBukuController {
     @FXML
     private void handleHomeClick() {
         setActiveButton(homeButton);
-        loadScene("student.fxml");
+        loadSceneWithMahasiswa("student.fxml", StudentController.class);
     }
 
     @FXML
@@ -65,7 +81,7 @@ public class CariBukuController {
     @FXML
     private void handleMyShelfClick() {
         setActiveButton(myShelfButton);
-        loadScene("buku_saya.fxml");
+        loadSceneWithMahasiswa("buku_saya.fxml", BukuSayaController.class);
     }
 
     @FXML
@@ -133,25 +149,6 @@ public class CariBukuController {
         bukuListContainer.getChildren().add(bookBox);
     }
 
-    private List<Book> loadBooksFromJson() {
-        try {
-            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/org/example/library/books.json")));
-            return new Gson().fromJson(content, new TypeToken<List<Book>>() {}.getType());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
-    private void showError(String title, String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.initOwner(searchField.getScene().getWindow());
-        alert.showAndWait();
-    }
-
     private VBox createBookView(Book book) {
         VBox bookBox = new VBox();
         bookBox.setSpacing(10);
@@ -176,10 +173,58 @@ public class CariBukuController {
         return bookBox;
     }
 
+    private List<Book> loadBooksFromJson() {
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/org/example/library/books.json")));
+            return new Gson().fromJson(content, new TypeToken<List<Book>>() {}.getType());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+            showError("Format Error", "The book data is not in the correct format.");
+            return new ArrayList<>();
+        }
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.initOwner(searchField.getScene().getWindow());
+        alert.showAndWait();
+    }
+
     private void loadScene(String fxml) {
         Stage stage = (Stage) searchField.getScene().getWindow();
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/org/example/library/views/" + fxml));
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
+            stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private <T> void loadSceneWithMahasiswa(String fxml, Class<T> controllerClass) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/" + fxml));
+            Parent root = loader.load();
+
+            T controller = loader.getController();
+            if (controllerClass.isInstance(controller)) {
+                if (controller instanceof StudentController) {
+                    ((StudentController) controller).setMahasiswa(mahasiswa);
+                    ((StudentController) controller).setLoginCount(loginCount); // Pass loginCount
+                } else if (controller instanceof BukuSayaController) {
+                    ((BukuSayaController) controller).setMahasiswa(mahasiswa);
+                    ((BukuSayaController) controller).setLoginCount(loginCount); // Pass loginCount
+                }
+            }
+
+            Stage stage = (Stage) searchField.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
             stage.setScene(scene);
@@ -194,71 +239,5 @@ public class CariBukuController {
         myShelfButton.getStyleClass().remove("sidebar-button-active");
 
         activeButton.getStyleClass().add("sidebar-button-active");
-    }
-
-    class Book {
-        private int id;
-        private String judul;
-        private String penulis;
-        private String kategori;
-        private int stok;
-        private int tahun;
-        private String foto;
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getJudul() {
-            return judul;
-        }
-
-        public void setJudul(String judul) {
-            this.judul = judul;
-        }
-
-        public String getPenulis() {
-            return penulis;
-        }
-
-        public void setPenulis(String penulis) {
-            this.penulis = penulis;
-        }
-
-        public String getKategori() {
-            return kategori;
-        }
-
-        public void setKategori(String kategori) {
-            this.kategori = kategori;
-        }
-
-        public int getStok() {
-            return stok;
-        }
-
-        public void setStok(int stok) {
-            this.stok = stok;
-        }
-
-        public int getTahun() {
-            return tahun;
-        }
-
-        public void setTahun(int tahun) {
-            this.tahun = tahun;
-        }
-
-        public String getFoto() {
-            return foto;
-        }
-
-        public void setFoto(String foto) {
-            this.foto = foto;
-        }
     }
 }

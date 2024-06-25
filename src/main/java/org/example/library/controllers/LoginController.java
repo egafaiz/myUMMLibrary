@@ -1,30 +1,30 @@
 package org.example.library.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.control.PasswordField;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Button;
-import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+import org.example.library.BorrowedBook;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class LoginController {
     @FXML private TextField usernameField;
@@ -200,15 +200,15 @@ public class LoginController {
     public static class Mahasiswa {
         private String nim;
         private String pic;
-        private List<String> borrowedBooks = new ArrayList<>();
+        private List<BorrowedBook> borrowedBooks = new ArrayList<>();
         private List<String> returnedBooks = new ArrayList<>();
 
         public String getNim() { return nim; }
         public void setNim(String nim) { this.nim = nim; }
         public String getPic() { return pic; }
         public void setPic(String pic) { this.pic = pic; }
-        public List<String> getBorrowedBooks() { return borrowedBooks; }
-        public void setBorrowedBooks(List<String> borrowedBooks) { this.borrowedBooks = borrowedBooks; }
+        public List<BorrowedBook> getBorrowedBooks() { return borrowedBooks; }
+        public void setBorrowedBooks(List<BorrowedBook> borrowedBooks) { this.borrowedBooks = borrowedBooks; }
         public List<String> getReturnedBooks() { return returnedBooks; }
         public void setReturnedBooks(List<String> returnedBooks) { this.returnedBooks = returnedBooks; }
     }

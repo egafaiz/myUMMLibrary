@@ -1,31 +1,29 @@
 package org.example.library.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import org.example.library.Book;
+import org.example.library.BorrowedBook;
+import org.example.library.LocalDateAdapter;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,19 +46,28 @@ public class StudentController {
 
     private LoginController.Mahasiswa mahasiswa;
     private int loginCount;
+    private int totalBorrowedBooks = 0;
+    private Gson gson;
 
     @FXML
     private void initialize() {
+        gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create();
         loadCategories();
-        loadAllBooks(); // Load all books initially
-        kategoriComboBox.setValue("All"); // Set default value for category
+        loadAllBooks();
+        kategoriComboBox.setValue("All");
         kategoriComboBox.setOnAction(this::handleCategorySearch);
-        setActiveButton(homeButton); // Set Home button as active initially
+        setActiveButton(homeButton);
     }
 
     public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
         this.mahasiswa = mahasiswa;
+        loadBorrowedBooks();
+        loadTotalBorrowedBooks();
         updateUI();
+    }
+
+    public LoginController.Mahasiswa getMahasiswa() {
+        return this.mahasiswa;
     }
 
     public void setLoginCount(int loginCount) {
@@ -68,19 +75,35 @@ public class StudentController {
         updateUI();
     }
 
-    private void updateUI() {
-        totalKunjunganLabel.setText(String.valueOf(loginCount));
-        bukuTerpinjamLabel.setText(String.valueOf(
-                mahasiswa.getBorrowedBooks() != null ? mahasiswa.getBorrowedBooks().size() : 0));
-        terlambatLabel.setText(String.valueOf(countLateBooks(mahasiswa.getBorrowedBooks())));
+    public void updateUI() {
+        if (loginCountLabel != null) {
+            loginCountLabel.setText(String.valueOf(loginCount));
+        }
+        if (totalKunjunganLabel != null) {
+            totalKunjunganLabel.setText(String.valueOf(loginCount));
+        }
+        if (bukuTerpinjamLabel != null && mahasiswa != null) {
+            bukuTerpinjamLabel.setText(String.valueOf(
+                    mahasiswa.getBorrowedBooks() != null ? mahasiswa.getBorrowedBooks().size() : 0));
+        }
+        if (terlambatLabel != null && mahasiswa != null) {
+            terlambatLabel.setText(String.valueOf(countLateBooks(mahasiswa.getBorrowedBooks())));
+        }
+        saveBorrowedBooks(mahasiswa.getBorrowedBooks());
+        saveTotalBorrowedBooks(totalBorrowedBooks);
     }
 
-    private int countLateBooks(List<String> borrowedBooks) {
+    private int countLateBooks(List<BorrowedBook> borrowedBooks) {
         if (borrowedBooks == null) {
             return 0;
         }
-        // Implement the logic to count late books
-        return 0;
+        int count = 0;
+        for (BorrowedBook book : borrowedBooks) {
+            if (book.getReturnDate() != null && book.getReturnDate().isBefore(LocalDate.now())) {
+                count++;
+            }
+        }
+        return count;
     }
 
     @FXML
@@ -91,19 +114,19 @@ public class StudentController {
     @FXML
     private void handleHomeClick() {
         setActiveButton(homeButton);
-        // Handle Home button click
+        loadSceneWithMahasiswa("student.fxml", StudentController.class);
     }
 
     @FXML
     private void handleSearchClick() {
         setActiveButton(searchButton);
-        loadScene("cari_buku.fxml");
+        loadSceneWithMahasiswa("cari_buku.fxml", CariBukuController.class);
     }
 
     @FXML
     private void handleMyShelfClick() {
         setActiveButton(myShelfButton);
-        loadScene("buku_saya.fxml");
+        loadSceneWithMahasiswa("buku_saya.fxml", BukuSayaController.class);
     }
 
     @FXML
@@ -150,8 +173,8 @@ public class StudentController {
     private void loadCategories() {
         try {
             String content = new String(Files.readAllBytes(Paths.get("src/main/resources/org/example/library/categories.json")));
-            List<String> categories = new Gson().fromJson(content, new TypeToken<List<String>>() {}.getType());
-            categories.add(0, "All"); // Ensure "All" is the first category
+            List<String> categories = gson.fromJson(content, new TypeToken<List<String>>() {}.getType());
+            categories.add(0, "All");
             kategoriComboBox.getItems().addAll(categories);
         } catch (IOException e) {
             e.printStackTrace();
@@ -171,25 +194,6 @@ public class StudentController {
         bukuListContainer.getChildren().add(bookBox);
     }
 
-    private List<Book> loadBooksFromJson() {
-        try {
-            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/org/example/library/books.json")));
-            return new Gson().fromJson(content, new TypeToken<List<Book>>() {}.getType());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
-    private void showError(String title, String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.initOwner(searchField.getScene().getWindow());
-        alert.showAndWait();
-    }
-
     private VBox createBookView(Book book) {
         VBox bookBox = new VBox();
         bookBox.setSpacing(10);
@@ -198,7 +202,7 @@ public class StudentController {
         ImageView bookImage = new ImageView(new Image(new File(book.getFoto()).toURI().toString()));
         bookImage.setFitHeight(200);
         bookImage.setFitWidth(150);
-        bookImage.setPreserveRatio(false); // Make sure to fill the dimensions
+        bookImage.setPreserveRatio(false);
         bookImage.getStyleClass().add("book-image");
 
         Label bookTitle = new Label(book.getJudul());
@@ -211,14 +215,86 @@ public class StudentController {
         bookStock.getStyleClass().add("book-stock");
 
         bookBox.getChildren().addAll(bookImage, bookTitle, bookAuthor, bookStock);
+
+        bookBox.setOnMouseClicked(event -> handleBookClick(book));
+
         return bookBox;
+    }
+
+    private void handleBookClick(Book book) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/info_buku.fxml"));
+            Parent root = loader.load();
+
+            InfoBukuController controller = loader.getController();
+            controller.setBook(book);
+            controller.setMahasiswa(mahasiswa);
+            controller.setLoginCount(loginCount);
+            controller.setStudentController(this);
+
+            Stage stage = (Stage) bukuListContainer.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
+            stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private List<Book> loadBooksFromJson() {
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/org/example/library/books.json")));
+            return gson.fromJson(content, new TypeToken<List<Book>>() {}.getType());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.initOwner(searchField.getScene().getWindow());
+        alert.showAndWait();
     }
 
     private void loadScene(String fxml) {
         Stage stage = (Stage) totalKunjunganLabel.getScene().getWindow();
         try {
+            Parent root = FXMLLoader.load(getClass().getResource("/org/example/library/views/" + fxml));
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
+            stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private <T> void loadSceneWithMahasiswa(String fxml, Class<T> controllerClass) {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/" + fxml));
             Parent root = loader.load();
+
+            T controller = loader.getController();
+            if (controllerClass.isInstance(controller)) {
+                if (controller instanceof StudentController) {
+                    ((StudentController) controller).setMahasiswa(mahasiswa);
+                    ((StudentController) controller).setLoginCount(loginCount);
+                } else if (controller instanceof CariBukuController) {
+                    ((CariBukuController) controller).setMahasiswa(mahasiswa);
+                    ((CariBukuController) controller).setLoginCount(loginCount);
+                } else if (controller instanceof BukuSayaController) {
+                    ((BukuSayaController) controller).setMahasiswa(mahasiswa);
+                    ((BukuSayaController) controller).setLoginCount(loginCount);
+                } else if (controller instanceof InfoBukuController) {
+                    ((InfoBukuController) controller).setMahasiswa(mahasiswa);
+                    ((InfoBukuController) controller).setLoginCount(loginCount);
+                }
+            }
+
+            Stage stage = (Stage) totalKunjunganLabel.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
             stage.setScene(scene);
@@ -235,69 +311,106 @@ public class StudentController {
         activeButton.getStyleClass().add("sidebar-button-active");
     }
 
-    class Book {
-        private int id;
-        private String judul;
-        private String penulis;
-        private String kategori;
-        private int stok;
-        private int tahun;
-        private String foto;
+    public void incrementTotalBorrowedBooks() {
+        updateTotalBorrowedBooks(1);
+    }
 
-        public int getId() {
-            return id;
+    public void decrementTotalBorrowedBooks() {
+        updateTotalBorrowedBooks(-1);
+    }
+
+    private void updateTotalBorrowedBooks(int delta) {
+        try {
+            totalBorrowedBooks += delta;
+            saveTotalBorrowedBooks(totalBorrowedBooks);
+            if (bukuTerpinjamLabel != null) {
+                bukuTerpinjamLabel.setText(String.valueOf(totalBorrowedBooks));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-        public void setId(int id) {
-            this.id = id;
+    private void loadBorrowedBooks() {
+        String filePath = "src/main/resources/org/example/library/borrowed_books_" + mahasiswa.getNim() + ".json";
+        Path path = Paths.get(filePath);
+        try {
+            if (!Files.exists(path)) {
+                Files.createDirectories(path.getParent());
+                Files.createFile(path);
+                Files.write(path, "[]".getBytes());
+            }
+            String content = new String(Files.readAllBytes(path));
+            List<BorrowedBook> borrowedBooks = gson.fromJson(content, new TypeToken<List<BorrowedBook>>() {}.getType());
+            if (borrowedBooks == null) {
+                borrowedBooks = new ArrayList<>();
+            }
+            mahasiswa.setBorrowedBooks(borrowedBooks);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
 
-        public String getJudul() {
-            return judul;
+    public void saveBorrowedBooks(List<BorrowedBook> borrowedBooks) {
+        String filePath = "src/main/resources/org/example/library/borrowed_books_" + mahasiswa.getNim() + ".json";
+        try {
+            Files.createDirectories(Paths.get(filePath).getParent());
+            String json = gson.toJson(borrowedBooks);
+            Files.write(Paths.get(filePath), json.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
 
-        public void setJudul(String judul) {
-            this.judul = judul;
+    private void loadTotalBorrowedBooks() {
+        String filePath = "src/main/resources/org/example/library/total_borrowed_books_" + mahasiswa.getNim() + ".json";
+        Path path = Paths.get(filePath);
+        try {
+            if (!Files.exists(path)) {
+                Files.createDirectories(path.getParent());
+                Files.createFile(path);
+                Files.write(path, "0".getBytes());
+            }
+            String content = new String(Files.readAllBytes(path));
+            totalBorrowedBooks = Integer.parseInt(content.trim());
+            if (bukuTerpinjamLabel != null) {
+                bukuTerpinjamLabel.setText(String.valueOf(totalBorrowedBooks));
+            }
+        } catch (IOException | NumberFormatException e) {
+            totalBorrowedBooks = 0;
+            if (bukuTerpinjamLabel != null) {
+                bukuTerpinjamLabel.setText(String.valueOf(totalBorrowedBooks));
+            }
         }
+    }
 
-        public String getPenulis() {
-            return penulis;
+    private void saveTotalBorrowedBooks(int totalBorrowedBooks) {
+        String filePath = "src/main/resources/org/example/library/total_borrowed_books_" + mahasiswa.getNim() + ".json";
+        try {
+            Files.createDirectories(Paths.get(filePath).getParent());
+            Files.write(Paths.get(filePath), String.valueOf(totalBorrowedBooks).getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
 
-        public void setPenulis(String penulis) {
-            this.penulis = penulis;
+    public void updateBookStock(int bookId, int change) {
+        List<Book> books = loadBooksFromJson();
+        for (Book book : books) {
+            if (book.getId() == bookId) {
+                book.setStok(book.getStok() + change);
+                break;
+            }
         }
+        saveBooksToJson(books);
+    }
 
-        public String getKategori() {
-            return kategori;
-        }
-
-        public void setKategori(String kategori) {
-            this.kategori = kategori;
-        }
-
-        public int getStok() {
-            return stok;
-        }
-
-        public void setStok(int stok) {
-            this.stok = stok;
-        }
-
-        public int getTahun() {
-            return tahun;
-        }
-
-        public void setTahun(int tahun) {
-            this.tahun = tahun;
-        }
-
-        public String getFoto() {
-            return foto;
-        }
-
-        public void setFoto(String foto) {
-            this.foto = foto;
+    private void saveBooksToJson(List<Book> books) {
+        try {
+            String json = gson.toJson(books);
+            Files.write(Paths.get("src/main/resources/org/example/library/books.json"), json.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

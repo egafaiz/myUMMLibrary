@@ -1,23 +1,19 @@
 package org.example.library;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class BorrowedBook {
     private int id;
     private LocalDate borrowedDate;
     private int duration;
-    private LocalDate returnDate; // Tambahkan field ini
+    private int extensionCount;  // Baru ditambahkan
 
-    // Getter dan setter untuk field returnDate
     public LocalDate getReturnDate() {
-        return returnDate;
+        return borrowedDate.plusDays(duration);
     }
 
-    public void setReturnDate(LocalDate returnDate) {
-        this.returnDate = returnDate;
-    }
-
-    // Getter dan setter lainnya
+    // Other getters and setters
     public int getId() {
         return id;
     }
@@ -40,5 +36,40 @@ public class BorrowedBook {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public int getExtensionCount() {  // Getter untuk extensionCount
+        return extensionCount;
+    }
+
+    public void setExtensionCount(int extensionCount) {  // Setter untuk extensionCount
+        this.extensionCount = extensionCount;
+    }
+
+    public void incrementExtensionCount() {  // Method untuk menambah extensionCount
+        this.extensionCount++;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BorrowedBook that = (BorrowedBook) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "BorrowedBook{" +
+                "id=" + id +
+                ", borrowedDate=" + borrowedDate +
+                ", duration=" + duration +
+                ", extensionCount=" + extensionCount +  // Tambahkan ke toString
+                '}';
     }
 }

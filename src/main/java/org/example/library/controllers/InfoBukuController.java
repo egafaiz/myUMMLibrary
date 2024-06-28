@@ -4,15 +4,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.library.Book;
+import org.example.library.BorrowedBook;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class InfoBukuController {
     @FXML private Label bookTitleLabel;
@@ -84,6 +87,16 @@ public class InfoBukuController {
 
     @FXML
     private void handlePinjamClick() {
+        if (isBookAlreadyBorrowed(book.getId())) {
+            showError("Error", "Buku sudah terpinjam dan tidak bisa dipinjam lagi.");
+            return;
+        }
+
+        if (mahasiswa.getBorrowedBooks().size() >= 10) {
+            showError("Error", "Anda sudah mencapai batas maksimal peminjaman 10 buku. Kembalikan buku terlebih dahulu.");
+            return;
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/pinjam_dialog.fxml"));
             Parent root = loader.load();
@@ -155,5 +168,23 @@ public class InfoBukuController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isBookAlreadyBorrowed(int bookId) {
+        List<BorrowedBook> borrowedBooks = mahasiswa.getBorrowedBooks();
+        for (BorrowedBook borrowedBook : borrowedBooks) {
+            if (borrowedBook.getId() == bookId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

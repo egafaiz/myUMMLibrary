@@ -288,9 +288,14 @@ public class StudentController {
                 } else if (controller instanceof BukuSayaController) {
                     ((BukuSayaController) controller).setMahasiswa(mahasiswa);
                     ((BukuSayaController) controller).setLoginCount(loginCount);
+                    ((BukuSayaController) controller).setStudentController(this);
                 } else if (controller instanceof InfoBukuController) {
                     ((InfoBukuController) controller).setMahasiswa(mahasiswa);
                     ((InfoBukuController) controller).setLoginCount(loginCount);
+                } else if (controller instanceof BukuTerpinjamController) {
+                    ((BukuTerpinjamController) controller).setMahasiswa(mahasiswa);
+                    ((BukuTerpinjamController) controller).setLoginCount(loginCount);
+                    ((BukuTerpinjamController) controller).setStudentController(this);
                 }
             }
 

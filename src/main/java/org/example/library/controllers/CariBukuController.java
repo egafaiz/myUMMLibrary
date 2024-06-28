@@ -31,28 +31,33 @@ public class CariBukuController {
     @FXML private Button searchButton;
     @FXML private Button myShelfButton;
     @FXML private VBox profileMenu;
-    @FXML private Label loginCountLabel; // Add this to display login count
+    @FXML private Label loginCountLabel;
 
     private LoginController.Mahasiswa mahasiswa;
     private int loginCount;
+    private StudentController studentController;
 
     @FXML
     private void initialize() {
         loadCategories();
-        loadAllBooks(); // Load all books initially
-        kategoriComboBox.setValue("All"); // Set default value for category
+        loadAllBooks();
+        kategoriComboBox.setValue("All");
         kategoriComboBox.setOnAction(this::handleCategorySearch);
-        setActiveButton(searchButton); // Set Search button as active initially
+        setActiveButton(searchButton);
     }
 
     public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
         this.mahasiswa = mahasiswa;
-        updateUI(); // Update UI after setting mahasiswa
+        updateUI();
     }
 
     public void setLoginCount(int loginCount) {
         this.loginCount = loginCount;
-        updateUI(); // Update UI after setting loginCount
+        updateUI();
+    }
+
+    public void setStudentController(StudentController studentController) {
+        this.studentController = studentController;
     }
 
     private void updateUI() {
@@ -75,7 +80,6 @@ public class CariBukuController {
     @FXML
     private void handleSearchClick() {
         setActiveButton(searchButton);
-        // Handle Search button click
     }
 
     @FXML
@@ -129,7 +133,7 @@ public class CariBukuController {
         try {
             String content = new String(Files.readAllBytes(Paths.get("src/main/resources/org/example/library/categories.json")));
             List<String> categories = new Gson().fromJson(content, new TypeToken<List<String>>() {}.getType());
-            categories.add(0, "All"); // Ensure "All" is the first category
+            categories.add(0, "All");
             kategoriComboBox.getItems().addAll(categories);
         } catch (IOException e) {
             e.printStackTrace();
@@ -157,7 +161,7 @@ public class CariBukuController {
         ImageView bookImage = new ImageView(new Image(new File(book.getFoto()).toURI().toString()));
         bookImage.setFitHeight(200);
         bookImage.setFitWidth(150);
-        bookImage.setPreserveRatio(false); // Make sure to fill the dimensions
+        bookImage.setPreserveRatio(false);
         bookImage.getStyleClass().add("book-image");
 
         Label bookTitle = new Label(book.getJudul());
@@ -168,7 +172,6 @@ public class CariBukuController {
 
         Label bookStock = new Label("Stok: " + book.getStok());
         bookStock.getStyleClass().add("book-stock");
-
         bookBox.getChildren().addAll(bookImage, bookTitle, bookAuthor, bookStock);
         return bookBox;
     }
@@ -217,10 +220,14 @@ public class CariBukuController {
             if (controllerClass.isInstance(controller)) {
                 if (controller instanceof StudentController) {
                     ((StudentController) controller).setMahasiswa(mahasiswa);
-                    ((StudentController) controller).setLoginCount(loginCount); // Pass loginCount
+                    ((StudentController) controller).setLoginCount(loginCount);
+                } else if (controller instanceof CariBukuController) {
+                    ((CariBukuController) controller).setMahasiswa(mahasiswa);
+                    ((CariBukuController) controller).setLoginCount(loginCount);
+                    ((CariBukuController) controller).setStudentController(studentController);
                 } else if (controller instanceof BukuSayaController) {
                     ((BukuSayaController) controller).setMahasiswa(mahasiswa);
-                    ((BukuSayaController) controller).setLoginCount(loginCount); // Pass loginCount
+                    ((BukuSayaController) controller).setLoginCount(loginCount);
                 }
             }
 

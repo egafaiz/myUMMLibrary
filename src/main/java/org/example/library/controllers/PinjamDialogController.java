@@ -9,6 +9,7 @@ import org.example.library.Book;
 import org.example.library.BorrowedBook;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class PinjamDialogController {
     @FXML private TextField durationField;
@@ -38,17 +39,27 @@ public class PinjamDialogController {
     }
 
     private void handleConfirm() {
+        if (isBookAlreadyBorrowed(book.getId())) {
+            showError("Error", "Buku sudah terpinjam dan tidak bisa dipinjam lagi.");
+            return;
+        }
+
+        if (studentController.getMahasiswa().getBorrowedBooks().size() >= 10) {
+            showError("Error", "Anda sudah mencapai batas maksimal peminjaman 10 buku. Kembalikan buku terlebih dahulu.");
+            return;
+        }
+
         String durationText = durationField.getText();
         int duration;
 
         try {
             duration = Integer.parseInt(durationText);
             if (duration > 7) {
-                showError("Error", "Duration cannot be more than 7 days.");
+                showError("Error", "Durasi tidak boleh lebih dari 7 hari.");
                 return;
             }
         } catch (NumberFormatException e) {
-            showError("Error", "Please enter a valid number for duration.");
+            showError("Error", "Masukkan angka yang valid untuk durasi.");
             return;
         }
 
@@ -77,6 +88,16 @@ public class PinjamDialogController {
     private void closeDialog() {
         Stage stage = (Stage) confirmButton.getScene().getWindow();
         stage.close();
+    }
+
+    private boolean isBookAlreadyBorrowed(int bookId) {
+        List<BorrowedBook> borrowedBooks = studentController.getMahasiswa().getBorrowedBooks();
+        for (BorrowedBook borrowedBook : borrowedBooks) {
+            if (borrowedBook.getId() == bookId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void showError(String title, String message) {

@@ -1,34 +1,34 @@
 package org.example.library.controllers;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.image.Image;
-import javafx.scene.control.Label;
-import javafx.event.ActionEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.geometry.Pos;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import org.example.library.Book;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EditBukuController {
     @FXML private ComboBox<String> kategoriComboBox;
@@ -43,9 +43,9 @@ public class EditBukuController {
     @FXML
     private void initialize() {
         loadCategories();
-        loadAllBooks();
         kategoriComboBox.setValue("All"); // Set default value for category
         kategoriComboBox.setOnAction(this::handleCategorySearch);
+        loadAllBooks(); // Load all books initially
     }
 
     @FXML
@@ -120,16 +120,13 @@ public class EditBukuController {
         editDialogPane.setVisible(false);
     }
 
-    private void showEditPage() {
-        // Logika untuk menampilkan halaman edit buku atau mengisi data buku yang akan diedit
-    }
-
     private void loadCategories() {
         List<String> categories = loadCategoriesFromJson();
         categories.add(0, "All");
         kategoriComboBox.getItems().addAll(categories);
     }
 
+    @FXML
     private void loadAllBooks() {
         List<Book> books = loadBooksFromJson();
         bukuListContainer.getChildren().clear();
@@ -189,7 +186,20 @@ public class EditBukuController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-        alert.initOwner(searchField.getScene().getWindow());
+        if (searchField != null && searchField.getScene() != null) {
+            alert.initOwner(searchField.getScene().getWindow());
+        }
+        alert.showAndWait();
+    }
+
+    private void showSuccessMessage(String message) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Sukses");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        if (searchField != null && searchField.getScene() != null) {
+            alert.initOwner(searchField.getScene().getWindow());
+        }
         alert.showAndWait();
     }
 
@@ -231,32 +241,5 @@ public class EditBukuController {
             showError("Error loading scene", "Terjadi kesalahan saat memuat scene.");
             e.printStackTrace();
         }
-    }
-
-    // Kelas untuk buku
-    class Book {
-        private int id;
-        private String judul;
-        private String penulis;
-        private String kategori;
-        private int stok;
-        private int tahun;
-        private String foto;
-
-        // Getter dan setter
-        public int getId() { return id; }
-        public void setId(int id) { this.id = id; }
-        public String getJudul() { return judul; }
-        public void setJudul(String judul) { this.judul = judul; }
-        public String getPenulis() { return penulis; }
-        public void setPenulis(String penulis) { this.penulis = penulis; }
-        public String getKategori() { return kategori; }
-        public void setKategori(String kategori) { this.kategori = kategori; }
-        public int getStok() { return stok; }
-        public void setStok(int stok) { this.stok = stok; }
-        public int getTahun() { return tahun; }
-        public void setTahun(int tahun) { this.tahun = tahun; }
-        public String getFoto() { return foto; }
-        public void setFoto(String foto) { this.foto = foto; }
     }
 }

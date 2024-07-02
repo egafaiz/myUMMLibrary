@@ -1,30 +1,27 @@
 package org.example.library.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.control.PasswordField;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Button;
-import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class LoginController {
     @FXML private TextField usernameField;
@@ -34,7 +31,7 @@ public class LoginController {
     @FXML private ImageView togglePasswordVisibility;
 
     private boolean isPasswordVisible = false;
-    private Map<String, Mahasiswa> studentData;
+    private Map<String, Map<String, Object>> studentData;
     private Map<String, Integer> loginData;
 
     private final String STUDENT_DATA_FILE = "src/main/resources/org/example/library/mahasiswa.json";
@@ -45,13 +42,11 @@ public class LoginController {
         loadStudentData();
         loadLoginData();
 
-        // Prepare text field to display password as plain text
         passwordTextField.setManaged(false);
         passwordTextField.setVisible(false);
         passwordTextField.managedProperty().bind(passwordTextField.visibleProperty());
         passwordTextField.textProperty().bindBidirectional(passwordField.textProperty());
 
-        // Set the initial icon for the password visibility toggle
         updateTogglePasswordVisibilityIcon();
 
         togglePasswordVisibility.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> togglePasswordVisibility());
@@ -62,11 +57,11 @@ public class LoginController {
         try {
             String content = new String(Files.readAllBytes(Paths.get(STUDENT_DATA_FILE)));
             Gson gson = new Gson();
-            Type listType = new TypeToken<List<Mahasiswa>>() {}.getType();
-            List<Mahasiswa> mahasiswaList = gson.fromJson(content, listType);
+            Type listType = new TypeToken<List<Map<String, Object>>>() {}.getType();
+            List<Map<String, Object>> mahasiswaList = gson.fromJson(content, listType);
             if (mahasiswaList != null) {
-                for (Mahasiswa mhs : mahasiswaList) {
-                    studentData.put(mhs.getNim(), mhs);
+                for (Map<String, Object> mhs : mahasiswaList) {
+                    studentData.put((String) mhs.get("nim"), mhs);
                 }
             }
         } catch (IOException e) {
@@ -127,11 +122,10 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        // Implement login logic
         if ("admin".equals(username) && "admin".equals(password)) {
             loadScene("admin.fxml");
-        } else if (studentData.containsKey(username) && studentData.get(username).getPic().equals(password)) {
-            Mahasiswa mahasiswa = studentData.get(username);
+        } else if (studentData.containsKey(username) && studentData.get(username).get("pic").equals(password)) {
+            Map<String, Object> mahasiswa = studentData.get(username);
             incrementLoginCount(username);
             loadStudentScene(mahasiswa);
         } else {
@@ -158,16 +152,15 @@ public class LoginController {
         }
     }
 
-    private void loadStudentScene(Mahasiswa mahasiswa) {
+    private void loadStudentScene(Map<String, Object> mahasiswa) {
         Stage stage = (Stage) loginButton.getScene().getWindow();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/library/views/student.fxml"));
             Parent root = loader.load();
 
-            // Pass Mahasiswa object to the controller
             StudentController controller = loader.getController();
             controller.setMahasiswa(mahasiswa);
-            controller.setLoginCount(loginData.get(mahasiswa.getNim()));
+            controller.setLoginCount(loginData.get(mahasiswa.get("nim")));
 
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/org/example/library/styles.css").toExternalForm());
@@ -179,7 +172,7 @@ public class LoginController {
     }
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
@@ -194,22 +187,5 @@ public class LoginController {
         passwordField.setVisible(true);
         isPasswordVisible = false;
         updateTogglePasswordVisibilityIcon();
-    }
-
-    // Kelas untuk mahasiswa
-    public static class Mahasiswa {
-        private String nim;
-        private String pic;
-        private List<String> borrowedBooks = new ArrayList<>();
-        private List<String> returnedBooks = new ArrayList<>();
-
-        public String getNim() { return nim; }
-        public void setNim(String nim) { this.nim = nim; }
-        public String getPic() { return pic; }
-        public void setPic(String pic) { this.pic = pic; }
-        public List<String> getBorrowedBooks() { return borrowedBooks; }
-        public void setBorrowedBooks(List<String> borrowedBooks) { this.borrowedBooks = borrowedBooks; }
-        public List<String> getReturnedBooks() { return returnedBooks; }
-        public void setReturnedBooks(List<String> returnedBooks) { this.returnedBooks = returnedBooks; }
     }
 }

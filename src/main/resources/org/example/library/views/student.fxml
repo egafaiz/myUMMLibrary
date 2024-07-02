@@ -47,7 +47,7 @@
                                     <children>
                                         <ImageView fx:id="searchIcon" fitHeight="20.0" fitWidth="20.0">
                                             <image>
-                                                <Image url="@/org/example/library/search.png"/>
+                                                <Image url="@/org/example/library/Search.png"/>
                                             </image>
                                         </ImageView>
                                         <Label text="Search" styleClass="sidebar-text"/>
@@ -119,10 +119,10 @@
                 </HBox>
                 <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-margin-top: 80px;">
                     <children>
-                        <Label text="Recommend For You" styleClass="subheading"/>
+                        <Label text="Recommend For You" styleClass="subheading" style="-fx-translate-y: 70;"/>
                     </children>
                 </HBox>
-                <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER" fitToHeight="true" fitToWidth="true" prefWidth="1340.0" maxHeight="310.0">
+                <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER" fitToHeight="true" fitToWidth="true" prefWidth="1340.0" maxHeight="310.0" style="-fx-translate-y: 70;">
                     <content>
                         <HBox fx:id="bukuListContainer" spacing="20" alignment="CENTER_LEFT">
                             <!-- All books will be listed here in a single row -->

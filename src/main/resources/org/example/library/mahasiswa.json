@@ -1,5 +1,2 @@
-<<<<<<< HEAD
-[{"nim":"202310370311040","pic":"11223344","loginCount":1},{"nim":"202310370311047","pic":"111111","loginCount":0}]
-=======
-[{"nama":"Muhammad Ega Faiz Fadlillah","nim":"202310370311047","email":"egafaiz354@gmail.com","fakultas":"Teknik","prodi":"Informatika","pic":"12121212","foto":"src\\main\\resources\\org\\example\\library\\images\\photo_2024-06-21_10-02-06.jpg"},{"nama":"Rozak Akbar Rizqi","nim":"202310370311040","email":"rozakakbar158@gmail.com","fakultas":"Teknik","prodi":"Informatika","pic":"12345678","foto":"src\\main\\resources\\org\\example\\library\\images\\CTR_2072.jpg"}]
->>>>>>> 0ff65f99593621e6a25416cb70eb611ecf4efc5b
+[{"nama":"Muhammad Ega Faiz Fadlillah","nim":"202310370311047","email":"faizega29@gmail.com","fakultas":"Teknik","prodi":"Informatika","pic":"12121212","foto":"src\\main\\resources\\org\\example\\library\\images\\photo_2024-06-21_10-02-06.jpg"},{"nama":"Rozak Akbar Rizqi","nim":"202310370311040","email":"rozakakbar158@gmail.com","fakultas":"Teknik","prodi":"Informatika","pic":"12345678","foto":"src\\main\\resources\\org\\example\\library\\images\\CTR_2072.jpg"}]
+

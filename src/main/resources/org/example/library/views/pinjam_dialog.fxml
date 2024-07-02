@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.library.controllers.PinjamDialogController" alignment="CENTER" spacing="20" styleClass="dialog-pane" stylesheets="@/org/example/library/styles.css">
+    <children>
+        <Label text="Pinjam Buku" styleClass="dialog-heading"/>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Durasi" styleClass="info-label"/>
+            <TextField fx:id="durationField" styleClass="text-field" promptText="Durasi dalam hari"/>
+        </HBox>
+        <HBox spacing="20" alignment="CENTER">
+            <Button fx:id="confirmButton" text="Pinjam" styleClass="dialog-button"/>
+            <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" styleClass="dialog-button"/>
+        </HBox>
+    </children>
+</VBox>

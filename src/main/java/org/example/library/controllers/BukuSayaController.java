@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class BukuSayaController {
     @FXML private Button homeButton;
@@ -34,7 +35,7 @@ public class BukuSayaController {
     @FXML private HBox borrowedBooksContainer;
     @FXML private Label loginCountLabel;
 
-    private LoginController.Mahasiswa mahasiswa;
+    private Map<String, Object> mahasiswa;
     private int loginCount;
     private Gson gson;
     private StudentController studentController;
@@ -46,7 +47,7 @@ public class BukuSayaController {
         displayBorrowedBooks();
     }
 
-    public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
+    public void setMahasiswa(Map<String, Object> mahasiswa) {
         this.mahasiswa = mahasiswa;
         displayBorrowedBooks();
     }
@@ -152,7 +153,7 @@ public class BukuSayaController {
     private void displayBorrowedBooks() {
         if (borrowedBooksContainer != null && mahasiswa != null) {
             borrowedBooksContainer.getChildren().clear();
-            List<BorrowedBook> borrowedBooks = loadBorrowedBooks();
+            List<BorrowedBook> borrowedBooks = (List<BorrowedBook>) mahasiswa.get("borrowedBooks");
             List<Book> allBooks = loadAllBooks();
             if (borrowedBooks != null && !borrowedBooks.isEmpty()) {
                 for (BorrowedBook borrowedBook : borrowedBooks) {
@@ -168,7 +169,7 @@ public class BukuSayaController {
     }
 
     private List<BorrowedBook> loadBorrowedBooks() {
-        String filePath = "src/main/resources/org/example/library/borrowed_books_" + mahasiswa.getNim() + ".json";
+        String filePath = "src/main/resources/org/example/library/borrowed_books_" + mahasiswa.get("nim") + ".json";
         File file = new File(filePath);
 
         if (file.exists()) {

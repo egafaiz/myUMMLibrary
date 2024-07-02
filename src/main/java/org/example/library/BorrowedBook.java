@@ -1,16 +1,25 @@
 package org.example.library;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class BorrowedBook {
     private int id;
     private LocalDate borrowedDate;
     private int duration;
-    private int extensionCount;  // Baru ditambahkan
+    private int extensionCount;
 
     public LocalDate getReturnDate() {
         return borrowedDate.plusDays(duration);
+    }
+
+    public long calculateFine() {
+        if (getReturnDate() == null || getReturnDate().isAfter(LocalDate.now())) {
+            return 0;
+        }
+        long daysLate = ChronoUnit.DAYS.between(getReturnDate(), LocalDate.now());
+        return daysLate * 1000;
     }
 
     // Other getters and setters
@@ -38,15 +47,15 @@ public class BorrowedBook {
         this.duration = duration;
     }
 
-    public int getExtensionCount() {  // Getter untuk extensionCount
+    public int getExtensionCount() {
         return extensionCount;
     }
 
-    public void setExtensionCount(int extensionCount) {  // Setter untuk extensionCount
+    public void setExtensionCount(int extensionCount) {
         this.extensionCount = extensionCount;
     }
 
-    public void incrementExtensionCount() {  // Method untuk menambah extensionCount
+    public void incrementExtensionCount() {
         this.extensionCount++;
     }
 
@@ -69,7 +78,7 @@ public class BorrowedBook {
                 "id=" + id +
                 ", borrowedDate=" + borrowedDate +
                 ", duration=" + duration +
-                ", extensionCount=" + extensionCount +  // Tambahkan ke toString
+                ", extensionCount=" + extensionCount +
                 '}';
     }
 }

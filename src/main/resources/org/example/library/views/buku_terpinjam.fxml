@@ -120,8 +120,13 @@
                             </HBox>
                             <HBox spacing="10">
                                 <Label text="Tgl Pengembalian" styleClass="info-label"/>
-                                <Label text="                :"/>
+                                <Label text="  :"/>
                                 <Label fx:id="returnDateLabel" styleClass="info-value" style="-fx-translate-y:-6;"/>
+                            </HBox>
+                            <HBox spacing="10">
+                                <Label text="Denda" styleClass="info-label"/>
+                                <Label text="           :"/>
+                                <Label fx:id="fineLabel" styleClass="info-value" style="-fx-translate-y:-6;"/>
                             </HBox>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Button text="Kembalikan" onAction="#handleKembalikanClick" styleClass="text-button" style="-fx-background-color: #8B0000; -fx-text-fill: #FFFFFF; -fx-translate-y: 30;"/>

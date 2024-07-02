@@ -10,6 +10,7 @@ import org.example.library.BorrowedBook;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public class PinjamDialogController {
     @FXML private TextField durationField;
@@ -39,12 +40,14 @@ public class PinjamDialogController {
     }
 
     private void handleConfirm() {
-        if (isBookAlreadyBorrowed(book.getId())) {
+        List<BorrowedBook> borrowedBooks = getBorrowedBooks();
+
+        if (isBookAlreadyBorrowed(book.getId(), borrowedBooks)) {
             showError("Error", "Buku sudah terpinjam dan tidak bisa dipinjam lagi.");
             return;
         }
 
-        if (studentController.getMahasiswa().getBorrowedBooks().size() >= 10) {
+        if (borrowedBooks.size() >= 10) {
             showError("Error", "Anda sudah mencapai batas maksimal peminjaman 10 buku. Kembalikan buku terlebih dahulu.");
             return;
         }
@@ -69,13 +72,14 @@ public class PinjamDialogController {
         borrowedBook.setBorrowedDate(borrowedDate);
         borrowedBook.setDuration(duration);
 
-        studentController.getMahasiswa().getBorrowedBooks().add(borrowedBook);
+        borrowedBooks.add(borrowedBook);
         studentController.updateBookStock(book.getId(), -1);
         studentController.incrementTotalBorrowedBooks();
 
-        studentController.saveBorrowedBooks(studentController.getMahasiswa().getBorrowedBooks());
+        studentController.saveBorrowedBooks(borrowedBooks);
 
         confirmed = true;
+        studentController.sendEmailNotification("Borrowed a book", "You have borrowed a new book: " + book.getJudul());
         closeDialog();
     }
 
@@ -90,14 +94,18 @@ public class PinjamDialogController {
         stage.close();
     }
 
-    private boolean isBookAlreadyBorrowed(int bookId) {
-        List<BorrowedBook> borrowedBooks = studentController.getMahasiswa().getBorrowedBooks();
+    private boolean isBookAlreadyBorrowed(int bookId, List<BorrowedBook> borrowedBooks) {
         for (BorrowedBook borrowedBook : borrowedBooks) {
             if (borrowedBook.getId() == bookId) {
                 return true;
             }
         }
         return false;
+    }
+
+    private List<BorrowedBook> getBorrowedBooks() {
+        Map<String, Object> mahasiswa = studentController.getMahasiswa();
+        return (List<BorrowedBook>) mahasiswa.get("borrowedBooks");
     }
 
     private void showError(String title, String message) {

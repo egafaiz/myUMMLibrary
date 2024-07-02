@@ -10,48 +10,44 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.library.Book;
 import org.example.library.BorrowedBook;
+import org.example.library.EmailSender;
 import org.example.library.LocalDateAdapter;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class StudentController {
-    @FXML private Label nimLabel;
+    @FXML private ComboBox<String> kategoriComboBox;
+    @FXML private TextField searchField;
+    @FXML private HBox bukuListContainer;
+    @FXML private Button homeButton;
+    @FXML private Button searchButton;
+    @FXML private Button myShelfButton;
+    @FXML private VBox profileMenu;
     @FXML private Label loginCountLabel;
     @FXML private Label totalKunjunganLabel;
     @FXML private Label bukuTerpinjamLabel;
     @FXML private Label terlambatLabel;
-    @FXML private ComboBox<String> kategoriComboBox;
-    @FXML private TextField searchField;
-    @FXML private ImageView profileImage;
-    @FXML private VBox profileMenu;
-    @FXML private HBox bukuListContainer;
-    @FXML private Button profileButton;
-    @FXML private ScrollPane bukuListScrollPane;
-    @FXML private Button homeButton;
-    @FXML private Button searchButton;
-    @FXML private Button myShelfButton;
 
-    private LoginController.Mahasiswa mahasiswa;
+    private Map<String, Object> mahasiswa;
     private int loginCount;
     private int totalBorrowedBooks = 0;
     private Gson gson;
+    private EmailSender emailSender;
 
     @FXML
     private void initialize() {
         gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create();
+        emailSender = new EmailSender();
         loadCategories();
         loadAllBooks();
         kategoriComboBox.setValue("All");
@@ -59,14 +55,14 @@ public class StudentController {
         setActiveButton(homeButton);
     }
 
-    public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
+    public void setMahasiswa(Map<String, Object> mahasiswa) {
         this.mahasiswa = mahasiswa;
         loadBorrowedBooks();
         loadTotalBorrowedBooks();
         updateUI();
     }
 
-    public LoginController.Mahasiswa getMahasiswa() {
+    public Map<String, Object> getMahasiswa() {
         return this.mahasiswa;
     }
 
@@ -83,13 +79,14 @@ public class StudentController {
             totalKunjunganLabel.setText(String.valueOf(loginCount));
         }
         if (bukuTerpinjamLabel != null && mahasiswa != null) {
-            bukuTerpinjamLabel.setText(String.valueOf(
-                    mahasiswa.getBorrowedBooks() != null ? mahasiswa.getBorrowedBooks().size() : 0));
+            List<BorrowedBook> borrowedBooks = (List<BorrowedBook>) mahasiswa.get("borrowedBooks");
+            bukuTerpinjamLabel.setText(String.valueOf(borrowedBooks != null ? borrowedBooks.size() : 0));
         }
         if (terlambatLabel != null && mahasiswa != null) {
-            terlambatLabel.setText(String.valueOf(countLateBooks(mahasiswa.getBorrowedBooks())));
+            List<BorrowedBook> borrowedBooks = (List<BorrowedBook>) mahasiswa.get("borrowedBooks");
+            terlambatLabel.setText(String.valueOf(countLateBooks(borrowedBooks)));
         }
-        saveBorrowedBooks(mahasiswa.getBorrowedBooks());
+        saveBorrowedBooks((List<BorrowedBook>) mahasiswa.get("borrowedBooks"));
         saveTotalBorrowedBooks(totalBorrowedBooks);
     }
 
@@ -104,6 +101,17 @@ public class StudentController {
             }
         }
         return count;
+    }
+
+    private long calculateTotalFine(List<BorrowedBook> borrowedBooks) {
+        if (borrowedBooks == null) {
+            return 0;
+        }
+        long totalFine = 0;
+        for (BorrowedBook book : borrowedBooks) {
+            totalFine += book.calculateFine();
+        }
+        return totalFine;
     }
 
     @FXML
@@ -130,7 +138,7 @@ public class StudentController {
     }
 
     @FXML
-    private void handleSearch(MouseEvent event) {
+    private void handleSearch(javafx.scene.input.MouseEvent event) {
         String searchQuery = searchField.getText();
         if (searchQuery.isEmpty()) {
             showError("Error", "Please enter a book ID to search.");
@@ -285,13 +293,11 @@ public class StudentController {
                 } else if (controller instanceof CariBukuController) {
                     ((CariBukuController) controller).setMahasiswa(mahasiswa);
                     ((CariBukuController) controller).setLoginCount(loginCount);
+                    ((CariBukuController) controller).setStudentController(this);
                 } else if (controller instanceof BukuSayaController) {
                     ((BukuSayaController) controller).setMahasiswa(mahasiswa);
                     ((BukuSayaController) controller).setLoginCount(loginCount);
                     ((BukuSayaController) controller).setStudentController(this);
-                } else if (controller instanceof InfoBukuController) {
-                    ((InfoBukuController) controller).setMahasiswa(mahasiswa);
-                    ((InfoBukuController) controller).setLoginCount(loginCount);
                 } else if (controller instanceof BukuTerpinjamController) {
                     ((BukuTerpinjamController) controller).setMahasiswa(mahasiswa);
                     ((BukuTerpinjamController) controller).setLoginCount(loginCount);
@@ -308,56 +314,27 @@ public class StudentController {
         }
     }
 
-    private void setActiveButton(Button activeButton) {
-        homeButton.getStyleClass().remove("sidebar-button-active");
-        searchButton.getStyleClass().remove("sidebar-button-active");
-        myShelfButton.getStyleClass().remove("sidebar-button-active");
-
-        activeButton.getStyleClass().add("sidebar-button-active");
-    }
-
-    public void incrementTotalBorrowedBooks() {
-        updateTotalBorrowedBooks(1);
-    }
-
-    public void decrementTotalBorrowedBooks() {
-        updateTotalBorrowedBooks(-1);
-    }
-
-    private void updateTotalBorrowedBooks(int delta) {
-        try {
-            totalBorrowedBooks += delta;
-            saveTotalBorrowedBooks(totalBorrowedBooks);
-            if (bukuTerpinjamLabel != null) {
-                bukuTerpinjamLabel.setText(String.valueOf(totalBorrowedBooks));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void loadBorrowedBooks() {
-        String filePath = "src/main/resources/org/example/library/borrowed_books_" + mahasiswa.getNim() + ".json";
-        Path path = Paths.get(filePath);
+        String filePath = "src/main/resources/org/example/library/borrowed_books_" + mahasiswa.get("nim") + ".json";
         try {
-            if (!Files.exists(path)) {
-                Files.createDirectories(path.getParent());
-                Files.createFile(path);
-                Files.write(path, "[]".getBytes());
+            if (!Files.exists(Paths.get(filePath))) {
+                Files.createDirectories(Paths.get(filePath).getParent());
+                Files.createFile(Paths.get(filePath));
+                Files.write(Paths.get(filePath), "[]".getBytes());
             }
-            String content = new String(Files.readAllBytes(path));
+            String content = new String(Files.readAllBytes(Paths.get(filePath)));
             List<BorrowedBook> borrowedBooks = gson.fromJson(content, new TypeToken<List<BorrowedBook>>() {}.getType());
             if (borrowedBooks == null) {
                 borrowedBooks = new ArrayList<>();
             }
-            mahasiswa.setBorrowedBooks(borrowedBooks);
+            mahasiswa.put("borrowedBooks", borrowedBooks);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void saveBorrowedBooks(List<BorrowedBook> borrowedBooks) {
-        String filePath = "src/main/resources/org/example/library/borrowed_books_" + mahasiswa.getNim() + ".json";
+        String filePath = "src/main/resources/org/example/library/borrowed_books_" + mahasiswa.get("nim") + ".json";
         try {
             Files.createDirectories(Paths.get(filePath).getParent());
             String json = gson.toJson(borrowedBooks);
@@ -368,15 +345,14 @@ public class StudentController {
     }
 
     private void loadTotalBorrowedBooks() {
-        String filePath = "src/main/resources/org/example/library/total_borrowed_books_" + mahasiswa.getNim() + ".json";
-        Path path = Paths.get(filePath);
+        String filePath = "src/main/resources/org/example/library/total_borrowed_books_" + mahasiswa.get("nim") + ".json";
         try {
-            if (!Files.exists(path)) {
-                Files.createDirectories(path.getParent());
-                Files.createFile(path);
-                Files.write(path, "0".getBytes());
+            if (!Files.exists(Paths.get(filePath))) {
+                Files.createDirectories(Paths.get(filePath).getParent());
+                Files.createFile(Paths.get(filePath));
+                Files.write(Paths.get(filePath), "0".getBytes());
             }
-            String content = new String(Files.readAllBytes(path));
+            String content = new String(Files.readAllBytes(Paths.get(filePath)));
             totalBorrowedBooks = Integer.parseInt(content.trim());
             if (bukuTerpinjamLabel != null) {
                 bukuTerpinjamLabel.setText(String.valueOf(totalBorrowedBooks));
@@ -389,8 +365,8 @@ public class StudentController {
         }
     }
 
-    private void saveTotalBorrowedBooks(int totalBorrowedBooks) {
-        String filePath = "src/main/resources/org/example/library/total_borrowed_books_" + mahasiswa.getNim() + ".json";
+    public void saveTotalBorrowedBooks(int totalBorrowedBooks) {
+        String filePath = "src/main/resources/org/example/library/total_borrowed_books_" + mahasiswa.get("nim") + ".json";
         try {
             Files.createDirectories(Paths.get(filePath).getParent());
             Files.write(Paths.get(filePath), String.valueOf(totalBorrowedBooks).getBytes());
@@ -399,7 +375,17 @@ public class StudentController {
         }
     }
 
+    public void sendEmailNotification(String subject, String body) {
+        String email = (String) mahasiswa.get("email");
+        if (email != null && !email.isEmpty()) {
+            emailSender.sendEmail(email, subject, body);
+        } else {
+            System.out.println("Email not found for the current student.");
+        }
+    }
+
     public void updateBookStock(int bookId, int change) {
+        // Implement the logic to update the stock of the book by 'change' amount
         List<Book> books = loadBooksFromJson();
         for (Book book : books) {
             if (book.getId() == bookId) {
@@ -407,15 +393,35 @@ public class StudentController {
                 break;
             }
         }
+        // Save the updated list of books back to the JSON file
         saveBooksToJson(books);
     }
 
+    public void incrementTotalBorrowedBooks() {
+        totalBorrowedBooks++;
+        saveTotalBorrowedBooks(totalBorrowedBooks);
+    }
+
+    public void decrementTotalBorrowedBooks() {
+        totalBorrowedBooks--;
+        saveTotalBorrowedBooks(totalBorrowedBooks);
+    }
+
     private void saveBooksToJson(List<Book> books) {
+        String filePath = "src/main/resources/org/example/library/books.json";
         try {
             String json = gson.toJson(books);
-            Files.write(Paths.get("src/main/resources/org/example/library/books.json"), json.getBytes());
+            Files.write(Paths.get(filePath), json.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setActiveButton(Button activeButton) {
+        homeButton.getStyleClass().remove("sidebar-button-active");
+        searchButton.getStyleClass().remove("sidebar-button-active");
+        myShelfButton.getStyleClass().remove("sidebar-button-active");
+
+        activeButton.getStyleClass().add("sidebar-button-active");
     }
 }

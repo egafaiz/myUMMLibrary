@@ -16,6 +16,7 @@ import org.example.library.BorrowedBook;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class InfoBukuController {
     @FXML private Label bookTitleLabel;
@@ -28,7 +29,7 @@ public class InfoBukuController {
     @FXML private Label loginCountLabel;
 
     private Book book;
-    private LoginController.Mahasiswa mahasiswa;
+    private Map<String, Object> mahasiswa;
     private int loginCount;
     private StudentController studentController;
 
@@ -42,7 +43,7 @@ public class InfoBukuController {
         updateUI();
     }
 
-    public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
+    public void setMahasiswa(Map<String, Object> mahasiswa) {
         this.mahasiswa = mahasiswa;
         updateUI();
     }
@@ -92,7 +93,8 @@ public class InfoBukuController {
             return;
         }
 
-        if (mahasiswa.getBorrowedBooks().size() >= 10) {
+        List<BorrowedBook> borrowedBooks = (List<BorrowedBook>) mahasiswa.get("borrowedBooks");
+        if (borrowedBooks.size() >= 10) {
             showError("Error", "Anda sudah mencapai batas maksimal peminjaman 10 buku. Kembalikan buku terlebih dahulu.");
             return;
         }
@@ -112,6 +114,7 @@ public class InfoBukuController {
 
             if (controller.isConfirmed()) {
                 studentController.updateUI();
+                studentController.sendEmailNotification("Borrowed a book", "You have borrowed a new book: " + book.getJudul());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -171,7 +174,7 @@ public class InfoBukuController {
     }
 
     private boolean isBookAlreadyBorrowed(int bookId) {
-        List<BorrowedBook> borrowedBooks = mahasiswa.getBorrowedBooks();
+        List<BorrowedBook> borrowedBooks = (List<BorrowedBook>) mahasiswa.get("borrowedBooks");
         for (BorrowedBook borrowedBook : borrowedBooks) {
             if (borrowedBook.getId() == bookId) {
                 return true;

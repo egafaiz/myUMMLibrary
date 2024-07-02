@@ -7,7 +7,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -22,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CariBukuController {
     @FXML private ComboBox<String> kategoriComboBox;
@@ -33,7 +38,7 @@ public class CariBukuController {
     @FXML private VBox profileMenu;
     @FXML private Label loginCountLabel;
 
-    private LoginController.Mahasiswa mahasiswa;
+    private Map<String, Object> mahasiswa;
     private int loginCount;
     private StudentController studentController;
 
@@ -46,7 +51,7 @@ public class CariBukuController {
         setActiveButton(searchButton);
     }
 
-    public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
+    public void setMahasiswa(Map<String, Object> mahasiswa) {
         this.mahasiswa = mahasiswa;
         updateUI();
     }
@@ -172,6 +177,7 @@ public class CariBukuController {
 
         Label bookStock = new Label("Stok: " + book.getStok());
         bookStock.getStyleClass().add("book-stock");
+
         bookBox.getChildren().addAll(bookImage, bookTitle, bookAuthor, bookStock);
         return bookBox;
     }

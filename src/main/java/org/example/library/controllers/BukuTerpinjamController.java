@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class BukuTerpinjamController {
@@ -27,6 +28,7 @@ public class BukuTerpinjamController {
     @FXML private Label bookStock;
     @FXML private Label borrowDateLabel;
     @FXML private Label returnDateLabel;
+    @FXML private Label fineLabel;
     @FXML private Button homeButton;
     @FXML private Button searchButton;
     @FXML private Button myShelfButton;
@@ -36,7 +38,7 @@ public class BukuTerpinjamController {
 
     private Book book;
     private BorrowedBook borrowedBook;
-    private LoginController.Mahasiswa mahasiswa;
+    private Map<String, Object> mahasiswa;
     private int loginCount;
     private StudentController studentController;
 
@@ -50,7 +52,7 @@ public class BukuTerpinjamController {
         updateUI();
     }
 
-    public void setMahasiswa(LoginController.Mahasiswa mahasiswa) {
+    public void setMahasiswa(Map<String, Object> mahasiswa) {
         this.mahasiswa = mahasiswa;
     }
 
@@ -76,6 +78,7 @@ public class BukuTerpinjamController {
         if (borrowedBook != null) {
             borrowDateLabel.setText(borrowedBook.getBorrowedDate().toString());
             returnDateLabel.setText(borrowedBook.getReturnDate().toString());
+            fineLabel.setText("Rp " + borrowedBook.calculateFine());
         }
     }
 
@@ -140,6 +143,7 @@ public class BukuTerpinjamController {
                         borrowedBook.setDuration(borrowedBook.getDuration() + days);
                         borrowedBook.incrementExtensionCount();
                         updateUI();
+                        studentController.sendEmailNotification("Extended book borrowing", "You have extended the borrowing period for the book: " + book.getJudul() + " by " + days + " days.");
                         showAlert("Perpanjang Buku", "Buku berhasil diperpanjang selama " + days + " hari.");
                     }
                 } catch (NumberFormatException e) {
@@ -185,21 +189,11 @@ public class BukuTerpinjamController {
     private void handleKembalikanClick() {
         try {
             if (borrowedBook != null && mahasiswa != null) {
-                List<BorrowedBook> borrowedBooks = mahasiswa.getBorrowedBooks();
-
-                System.out.println("Borrowed Books List before removal:");
-                for (BorrowedBook b : borrowedBooks) {
-                    System.out.println(b);
-                }
+                List<BorrowedBook> borrowedBooks = (List<BorrowedBook>) mahasiswa.get("borrowedBooks");
 
                 if (!borrowedBooks.remove(borrowedBook)) {
                     showAlert("Error", "Failed to remove the borrowed book.");
                     return;
-                }
-
-                System.out.println("Borrowed Books List after removal:");
-                for (BorrowedBook b : borrowedBooks) {
-                    System.out.println(b);
                 }
 
                 if (studentController != null) {
@@ -207,6 +201,7 @@ public class BukuTerpinjamController {
                     studentController.decrementTotalBorrowedBooks();
                     studentController.updateBookStock(book.getId(), 1);
                     studentController.updateUI();
+                    studentController.sendEmailNotification("Returned a book", "You have returned the book: " + book.getJudul());
 
                     showAlert("Kembalikan Buku", "Buku berhasil dikembalikan.");
 

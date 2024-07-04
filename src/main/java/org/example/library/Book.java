@@ -4,12 +4,40 @@ public class Book {
     private int id;
     private String judul;
     private String penulis;
-    private String tahun; // Mengubah tipe data tahun menjadi String
+    private String tahun;
     private String kategori;
     private int stok;
     private String foto;
 
-    // Getter dan setter untuk setiap field
+    // Overloaded constructors
+    public Book(int id, String judul) {
+        this.id = id;
+        this.judul = judul;
+    }
+
+    public Book(int id, String judul, String penulis, String tahun, String kategori, int stok, String foto) {
+        this.id = id;
+        this.judul = judul;
+        this.penulis = penulis;
+        this.tahun = tahun;
+        this.kategori = kategori;
+        this.stok = stok;
+        this.foto = foto;
+    }
+
+    // Overloaded methods
+    public void setInfo(int id, String judul) {
+        this.id = id;
+        this.judul = judul;
+    }
+
+    public void setInfo(int id, String judul, String penulis) {
+        this.id = id;
+        this.judul = judul;
+        this.penulis = penulis;
+    }
+
+    // Getter and setter methods for each field
     public int getId() {
         return id;
     }

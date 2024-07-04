@@ -1,29 +1,30 @@
 package org.example.library.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.event.ActionEvent;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import org.example.library.Book;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
 
 public class UpdateBukuController {
     @FXML private TextField idBukuField;
@@ -37,7 +38,6 @@ public class UpdateBukuController {
     private File selectedImageFile;
     private final String DATA_FILE = "src/main/resources/org/example/library/books.json";
     private final String IMAGE_DIR = "src/main/resources/org/example/library/images/";
-    private final String CATEGORY_FILE = "src/main/resources/org/example/library/categories.json";
 
     @FXML
     private void handleBackToAdmin(MouseEvent event) {
@@ -155,7 +155,7 @@ public class UpdateBukuController {
         existingBook.setPenulis(penulisBukuField.getText());
         existingBook.setKategori(kategoriBukuField.getText());
         existingBook.setStok(Integer.parseInt(stokBukuField.getText()));
-        existingBook.setTahun(Integer.parseInt(tahunTerbitField.getText()));
+        existingBook.setTahun(tahunTerbitField.getText());
 
         if (selectedImageFile != null) {
             File imageDir = new File(IMAGE_DIR);
@@ -196,13 +196,13 @@ public class UpdateBukuController {
         return new ArrayList<>();
     }
 
-    public void setBookData(int id, String judul, String penulis, String kategori, int stok, int tahun, String foto) {
+    public void setBookData(int id, String judul, String penulis, String kategori, int stok, String tahun, String foto) {
         idBukuField.setText(String.valueOf(id));
         judulBukuField.setText(judul);
         penulisBukuField.setText(penulis);
         kategoriBukuField.setText(kategori);
         stokBukuField.setText(String.valueOf(stok));
-        tahunTerbitField.setText(String.valueOf(tahun));
+        tahunTerbitField.setText(tahun);
         if (foto != null) {
             Image image = new Image(new File(foto).toURI().toString());
             fotoBukuView.setImage(image);
@@ -237,32 +237,5 @@ public class UpdateBukuController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    // Kelas untuk buku
-    class Book {
-        private int id;
-        private String judul;
-        private String penulis;
-        private String kategori;
-        private int stok;
-        private int tahun;
-        private String foto;
-
-        // Getter dan setter
-        public int getId() { return id; }
-        public void setId(int id) { this.id = id; }
-        public String getJudul() { return judul; }
-        public void setJudul(String judul) { this.judul = judul; }
-        public String getPenulis() { return penulis; }
-        public void setPenulis(String penulis) { this.penulis = penulis; }
-        public String getKategori() { return kategori; }
-        public void setKategori(String kategori) { this.kategori = kategori; }
-        public int getStok() { return stok; }
-        public void setStok(int stok) { this.stok = stok; }
-        public int getTahun() { return tahun; }
-        public void setTahun(int tahun) { this.tahun = tahun; }
-        public String getFoto() { return foto; }
-        public void setFoto(String foto) { this.foto = foto; }
     }
 }
